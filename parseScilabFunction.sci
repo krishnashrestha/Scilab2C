@@ -54,18 +54,12 @@ if (ext == ".sci") then
                                     ccp = posim(n, scounter-1);
                                     ar1 = part(q, ccp+1:cc-1);
                                 end
-                                for (cmp = cc : 1 : len)       //We will check for the position of next character in the string, which is a part of matrix 'com'. The second argument will have all characters between the two symbols.
-                                    c = part(q, cmp);
-                                    for (cmpm = 1 : 1 : 7)
-                                        co = com(1, cmpm);
-                                        if (co == c) then
-                                            ar2 = part(q, cc+1:cmp);      //With this, we are done extracting the second argument.
-                                            break
-                                        end
-                                    end
-                                    ar2 = part(q, cc+1:len);
-                                    break
-                                end
+                                //The second argument to the mathematicaloperator will contain all the characters after the operator sign, till the end of the string excluding semicolon.
+                                i = strindex(q, ";");       //This will locate ";" in the string. If ";" does not exist, then it will return a null matrix.
+                                if (i == []) then               //We do this here in order to exclude ";"
+                                    ar2 = part(q, cc+1:len)     
+                                else
+                                    ar2 = part(q, cc+1:i-1)
                                 r = b + " " + ar1 + " " + ar2;           //The desired content for the output with proper formatting with be stored as 'r'
                                 output(counter, 1) = r;                  //We pass the value of 'r' to output matrix.
                             end
