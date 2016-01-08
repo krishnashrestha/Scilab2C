@@ -38,7 +38,8 @@ void main()
     printf("\nEnter xp: ");
     scanf("%d", &xp);
     
-    interp1(x[0], y[0], x[iSize-1], y[iSize-1], xp)
+    yp = interp1(x[0], y[0], x[iSize-1], y[iSize-1], xp);
+    printf("yp = %f", yp);
     getch();
 }
 
