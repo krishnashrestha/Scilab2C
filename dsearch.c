@@ -1,119 +1,116 @@
 //Created by: Krishna Shrestha
+//E-mail: shresthakrishna1997@gmail.com
 
-//This is a program that functions similar to dsearch() function of Scilab.
+//This is a programthat works similar to dsearch() function.
 
 #include<stdio.h>
 #include<conio.h>
-int row, col, nb;
-int i, j, k;
-int pm;
-int x[50][50]={0}, bin[100]={0}, i_bin[50][50]={0}, count[100]={0}, out=0;
-void discrete();
-void continuous();
-void mode();
-void result();
+
+void dsearch(int **, int *, char);
+
 void main()
 {
+    int i, j, row, col, x[50][50];
+    int nb, bins[100];
+    char pm;
+    
     clrscr();
-    printf("Enter the number of rows and colums of the matrix: ");
+    
+    printf("Enter no of rows and columns of the matrix : ");
     scanf("%d %d", &row, &col);
-    printf("\n\nEnter the matrix: ");
-    for(i=0; i<row; i++)
+    
+    printf("Enter the matrix: ");
+    for(i=0; i<r; i++)
     {
-	for(j=0; j<col; j++)
-	    scanf("%d", x[i][j]);
+	for(j=0; j<c; j++)
+	    scanf("%d", &x[i][j]);		//Accept the contents for the matrix
     }
-    printf("\n\nEnter no of bins: ");
+    
+    printf("Enter the number of bins: ");
     scanf("%d", &nb);
-    printf("\n\nEnter bin: ");
-    for(k=0; k<nb; k++)
-	scanf("%d", bin[k]);
-    printf("\n\nEnter mode (0 for Continuous and 1 for Discrete): ");
-    scanf("%d", &pm);
-    mode();
+    
+    printf("bins = ");
+    for(i=0; i<nb; i++)
+	scanf("%d", &bins[i]);			//Accept the contents for bins
+    
+    printf("Enter the mode: ");
+    scanf("%c", &pm);
+    
+    dsearch(x, bins, pm);
     getch();
 }
-void mode()
+
+void dsearch(int x[50][50], int bins[100], char pm)
 {
-    switch(pm)
+    int i, j, k;
+    int i_bin[50][50], count[]={0}, outside=0;
+    switch (pm)
     {
-	case 0 : default :
-	    continuous();
-	    break;
-	case 1:
-	    discrete();
-	    break;
-    }
-}
-void discrete()
-{
-    clrscr();
-    for(k=0; k<nb; k++)
-    {
-	for(i=0; i<row; i++)
-	{
-	    for(j=0; j<col; j++)
+	case 'd':
+	    for(k=0; k<100; k++)
 	    {
-		if(x[i][j] == bin[k])
+		for(i=0; i<50; i++)
 		{
-		    i_bin[i][j] = x[i][j];
-		    count[k]++;
-		}
-		else
-		    out++;
-	    }
-	}
-    }
-    result();
-}
-void continuous()
-{
-    int a, b;
-    for(k=0; k<nb; k++)
-    {
-	a = bin[k];
-	b = bin[k+1];
-	for(i=0; i<row; i++)
-	{
-	    for(j=0; j<col; j++)
-	    {
-		if(a == x[i][j])
-		{
-		    if(k==0 || k==1)
-			i_bin[i][j] = 1;
-		    else
-			i_bin[i][j] = k-1;
-		}
-		else if(a < x[i][j])
-		{
-		    while(a<=b)
+		    for(j=0; j<50; j++)
 		    {
-			a++;
-			if(a == x[i][j])
-			    i_bin[i][j] = k+1;
+			if( x[i][j] == bins[k] )
+			{
+			    i_bin[i][j] = k;
+			    count[k]++;
+			}
+			else
+			{
+			    i_bin[i][j]=0;
+			    outside++;
+			}
 		    }
 		}
-		else
-		{
-		    i_bin[i][j] = 0;
-		    out++;
-		}
 	    }
-	}
+  	case 'c' :
+	    int a, b;
+	    for(k=0; k<100; k++)
+	    {
+		a = bins[k];
+		b = bins[k+1];
+		for(i=0; i<50; i++)
+		{
+		    for(j=0; j<50; j++)
+		    {
+			if(a == x[i][j])
+			{
+		    		if(k==0 || k==1)
+					i_bin[i][j] = 1;
+				else
+					i_bin[i][j] = k-1;
+			}
+			else if(a < x[i][j])
+			{
+		    		while(a<=b)
+		    		{
+					a++;
+					if(a == x[i][j])
+			    			i_bin[i][j] = k+1;
+		    		}
+			}
+			else
+			{
+		    		i_bin[i][j] = 0;
+		    		out++;
+			}
+		    }
+		}
+	default :
+	    printf("Please enter a valid choice");
     }
-    result();
-}
-void result()
-{
-    printf("i_bin = ");
-    for(i=0; i<row; i++)
+    printf("\n\ni_bin =");
+    for(i=0; i<50; i++)
     {
 	printf("\n");
-	for(j=0; j<col; j++)
-	    printf("%d\t", i_bin[i][j]);
+	for(j=0; j<50; j++)
+	    printf("%d\t", x[i][j]);
     }
-    printf("\n\ncounts = \n");
-    for(k=0; k<nb; k++)
-	printf("%d\t", count[k]);
-    printf("\n\nOutside = \n%d", out);
+    printf("\n\nOccurence =");
+    for(i=0; i<100; i++)
+    printf("%d\t", count[i]);
+    printf("\n\nOutside = %d", outside);
 }
