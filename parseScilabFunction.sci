@@ -25,25 +25,34 @@ if (ext == ".sci") then
             lf = getfield(4, l1);                   //This will assign the list of all Scilab functions (i.e. l1(4) ) to 'lf'
             if (p > 1) then
                 //Break the cell and scan the contents within the cell
-                q = x(n, 1)
+                q = x(n, 1);
                 //First, we check for mathematical operators of Scilab. We will compare the contents of each of the cell of matrix 'x' with the mathematical operators. To do so, we will try to locate the mathematical operator symbol in the character string contained in the cell. If the operator does not exist, then strindex() will return a null value. If the operator symbol is found, then strindex() will return a non-zero value. In the second case, the arguments may be between "=" and operator, between operator and ";", after operator till the last character, or between two different operators. So, we may first try to locate all five mathematical operator, "=" sign and ";" sign.
+                
                 scounter = 0;               //Counter for position of an operator in the string
                 len = length(q)             //This will give the length of string present in the particular cell of matrix 'x'.
+
                 for (cc = 1 : 1 : len)       //Now, we will pick every single character and check for the presence of mathematical operators, "=" sign and ";".
-                    a = part(q, cc)
-                    com = [m, "=", ";"]
-                    for (cm = 1 : 1 : 7)
-                        b = com(1, cm)
+                    a = part(q, cc);
+
+                    com = [m, "=", ";", "(", ")"]
+                    for (cm = 1 : 1 : 9)
+                        b = com(1, cm);
                         r = ""
+                        pbo = 0;
+                        pbc = 0;
+                        peq = 0;
+
                         if (a == b) then        //Compare the two characters
                             if (b == "=") then      //If the character in the string matches with "=" sign, then the counter is increased by 1 and its position is noted.
                                 scounter = scounter + 1;
                                 posim(n, scounter) = cc;
+                                peq = cc;                   //Here, 'peq' will store the position of "="
                                 continue
                             elseif (b == ";")           //If the character in the string is ";", then we will first check whether it is the first character in the string. If yes, we may simply move on to next cell. 
                                 if (scounter == 0)
                                     break
                                 end
+                                
                             else               //If the character in the string is some mathematical operator then counter is increased by 1, itsposition is noted and the each of two arguments is extracted from either in between any two symbols from matrix "com", or before the operator right from beginning of the string, or after the operation till the end of the string.
                                 counter = counter + 1;
                                 scounter = scounter + 1;
@@ -62,37 +71,43 @@ if (ext == ".sci") then
                                     ar2 = part(q, cc+1:i-1)
                                 r = b + " " + ar1 + " " + ar2;           //The desired content for the output with proper formatting with be stored as 'r'
                                 output(counter, 1) = r;                  //We pass the value of 'r' to output matrix.
+                                end
                             end
                         end
                     end
+
+                 //Now we will check for the presence of any Scilab function in the string. For this, we may extract and store as a separate string all the characters either between "=" and "(", or if "=" does not exist, then all characters before "(". If this string matches with any of the Scilab function name, then we may extract all the contents enclosed in brackets, i.e. the arguments of the Scilab function.
                     
-                   //Now we will check for the presence of any Scilab function in the string. For this, first try to locate "(", ")" and "=" and note their position. Then, we may extract and store as a separate string all the characters either between "=" and "(", or if "=" does not exist, then all characters before "(". If this string matches with any of the Scilab function name, then we may extract all the contents enclosed in brackets, i.e. the arguments of the Scilab function.
-                    i1 = strindex(q, "=");
-                    i2 = strindex(q, "(");
-                    i3 = strindex(q, ")");
-                    if (i2 == 0 | i3 == 0) then     //There cannot be a function without '(' and ')'
+                    if (a == "=") then
+                            peq = cc;                         //Here, 'peq' will store the value for position of "="
+                        elseif (a == "(") then
+                            pbo = cc;                        //Here, 'pbo' will store the value for position of "("
+                        elseif (a == ")") then
+                            pbc = cc;                       //Here, 'pbc' will store the value for position of ")"
+                    end
+
+                    if (pbo == 0 | pbc == 0) then     //There cannot be a function without '(' and ')'
                         break
                     else
-                        if (i1 == 0) then
-                            fn = part(q, 1:i2-10);
+                        if (peq == 0) then
+                            fn = part(q, 1:pbo-10);
                         else
-                            fn = part(q, i1+1:i2-1);
+                            fn = part(q, peq+1:pbo-1);
                         end
                     end
                     for (cc = 1 : 1 : 2095)          //Searching the function in the list of Scilab functions
                         b = lf(cc, 1);
                         if (b == fn) then
-                            ar = part(q, i2+1:i3-1);      //Extract the arguments enclosed in brackets
+                            ar = part(q, pbo+1:pbc-1);      //Extract the arguments enclosed in brackets
                             counter = counter + 1;
                             r = fn + " " + ar;              //The desired content for the output with proper formatting with be stored as 'r'
                             output(counter, 1) = r          //We pass the value of 'r' to output matrix.
                         end
                     end
-                    
                 end
-                
-            else
-                //Check the content of the cell and note it's number. We may need the adjoining cells as well for our output. We will compare the contents of each cell with various operators and functions
+            end
+            if (p == 1) then
+            //Check the content of the cell and note it's number. We may need the adjoining cells as well for our output. We will compare the contents of each cell with various operators and functions
                 q = x(n, 1);
                 //First, we check for mathematical operators of Scilab. We will compare the contents of each of the cell of matrix 'x' with the mathematical operators. If it does not match with any of the mathematical opertors, then we will try comparing it with each of the Scilab functions.
                 
@@ -100,12 +115,12 @@ if (ext == ".sci") then
                     b = m(1, a);
                     if (q == b) then
                         counter = counter + 1;              //The counter value will increase by 1 each time an operator is encountered.
-                        r = b + " " + x(n-1) + " " + x(n+1)               //This will create a string that may be stored in the output matrix in desired format. All that is needed here is to remove ')' if it is at the end of the string
+                        r = b + " " + x(n-1) + " " + x(n+1);               //This will create a string that may be stored in the output matrix in desired format. All that is needed here is to remove ')' if it is at the end of the string
                         i = strindex(r, ";");      //This will give the location of semi-colon in the string 'r'. If semi-colon does not exist, it will return a null vector or null matrix.
                         if (i == []) then
                             nsc = r;
                         else
-                            nsc = part(r, 1:i-1);  //This will pick up the characters present in the string from location 1 to the location just preceding the semi-colon. Thus, semi-colon is removed
+                            nsc = part(r, 1:i-1);         //This will pick up the characters present in the string from location 1 to the location just preceding the semi-colon. Thus, semi-colon is removed
                         end
                         output(counter, 1) = nsc;           //Store the string formatted for the output in output 
                         break;
@@ -117,6 +132,7 @@ if (ext == ".sci") then
                 counter = counter + 1;
                 nextCell = x(n+1, 1);          //Here, we pass the content of the cell next to Scilab function to 'nextCell'.
                 if (nextCell == "(" | nextCell == "( ") then        //We will pick the arguments of the Scilab function. Here, the argument/s do not share cell with '('.
+                    
                 else                        //This shall be the case when the argument/s share cell with '('.
                     c = length(nextCell);
                     t = nextCell(1, c);          //We find and locate the last character of the cell next to Scilab function.
@@ -132,7 +148,7 @@ if (ext == ".sci") then
                                 break
                             end
                         end
-                        r = ""
+                        r = " "
                         for (co = n+1 : 1 : pos)
                             r = r + " " + x(co, 1)
                         end
@@ -149,10 +165,9 @@ if (ext == ".sci") then
     end
 end
 end
-else
+end
+disp(output)
+if (ext ~= ".sci") then
     error("Error: The specified file must contain .sci extension")
 end
 endfunction
-
-
-
