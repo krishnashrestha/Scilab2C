@@ -5,7 +5,7 @@
 
 //To begin with, we will ask the user to enter the file name/path of the '.sci' file that may be opened. First thing that may be done is validate the file name/path accepted. While validating the file name/path, we will check two things, first that the file name/path has an extension '.sci' at its end, and second that the specified file exists.
 function [output] = parseScilabFunction(path)
-ext = strrchr(path, '.')            //This will store the extension, in other terms, the remaining part of the input string after the last occurence of character fullstop(.)
+ext = strrchr(path, '.')            //This will store the extension, in other terms, the remaining part of the input string after the last occurrence of character fullstop(.)
 if (ext == ".sci") then
     fd = mopen(path, 'r')           //This will check whether the file exists. If yes, then it will open the file. 'fd' will store a number, which is zero when Scilab is unable to open the file. Otherwise, 'fd' will have a non-zero value.
     if (fd == 0) then
